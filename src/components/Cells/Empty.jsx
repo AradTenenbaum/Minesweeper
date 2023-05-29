@@ -1,16 +1,47 @@
 import React, { useState } from "react";
 import "../../css/Cell.css";
+import { convertIdToIndexes } from "../../utils/convert";
 
-const Empty = () => {
-  const [isVisible, setIsVisible] = useState(false);
-
+const Empty = ({
+  clickedBoxes,
+  setClickedBoxes,
+  id,
+  isVisible,
+  setBoard,
+  clickOnEmpty,
+  isFlag,
+}) => {
   const onClick = () => {
-    setIsVisible(true);
+    if (!isVisible) {
+      const indexes = convertIdToIndexes(id);
+      clickOnEmpty(indexes[0], indexes[1]);
+      setClickedBoxes((boxes) => [...boxes, indexes]);
+    }
+  };
+
+  const onContextMenu = (e) => {
+    e.preventDefault();
+    const indexes = convertIdToIndexes(id);
+    setBoard((board) => {
+      let newBoard = [...board];
+      newBoard[indexes[0]][indexes[1]] = {
+        ...newBoard[indexes[0]][indexes[1]],
+        props: {
+          ...newBoard[indexes[0]][indexes[1]].props,
+          isFlag: !newBoard[indexes[0]][indexes[1]].props.isFlag,
+        },
+      };
+      return newBoard;
+    });
   };
 
   return (
-    <div className="grid-item" onClick={onClick}>
-      {isVisible ? "Empty" : " "}
+    <div
+      className={"grid-item" + (isVisible ? " open-cell" : "")}
+      onClick={onClick}
+      onContextMenu={onContextMenu}
+    >
+      {isFlag ? "FLAG" : ""}
     </div>
   );
 };

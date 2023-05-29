@@ -40,3 +40,17 @@ export function bombsNear(bombsIndexes, i, j) {
   });
   return counter;
 }
+
+export const setPosVisible = (i, j, board) => {
+  board[i][j] = {
+    ...board[i][j],
+    props: { ...board[i][j].props, isVisible: true },
+  };
+};
+
+export const toggleFlag = (i, j, board) => {
+  board[i][j] = {
+    ...board[i][j],
+    props: { ...board[i][j].props, isFlag: !board[i][j].props.isFlag },
+  };
+};

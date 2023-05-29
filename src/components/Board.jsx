@@ -1,37 +1,88 @@
 import React, { useEffect, useState } from "react";
 import "../css/Board.css";
-import { BOMB, EMPTY, NUMBER } from "../utils/constants";
+import { BOMB, EMPTY, NUMBER, WIN } from "../utils/constants";
 import Cell from "./Cells/Cell";
-import { bombsNear, getRandomLocations, inBounds } from "../utils/board";
+import {
+  bombsNear,
+  getRandomLocations,
+  inBounds,
+  setPosVisible,
+} from "../utils/board";
+import { convertIndexesToId } from "../utils/convert";
 
 const Board = ({ setStatus }) => {
   const [board, setBoard] = useState([]);
+  const [clickedBoxes, setClickedBoxes] = useState([]);
 
   const clickOnEmpty = (i, j) => {
-    const toClick = [];
-    const directions = [
-      [1, 1],
-      [1, -1],
-      [-1, 1],
-      [-1, -1],
-      [1, 0],
-      [0, 1],
-      [-1, 0],
-      [0, -1],
-    ];
-    directions.forEach((dir) => {
-      if (
-        inBounds(4, i + dir[0], j + dir[1]) &&
-        board[i + dir[0]][j + dir[1]].props.type !== BOMB
-      ) {
-        console.log(board[i + dir[0]][j + dir[1]]);
-        if (board[i + dir[0]][j + dir[1]].props.type === NUMBER) {
-        } else if (board[i + dir[0]][j + dir[1]].props.type !== EMPTY) {
-          toClick.append([i + dir[0], j + dir[1]]);
-        }
+    setBoard((board) => {
+      let toClick = [];
+      let nextClicks = [[i, j]];
+      const newBoard = [...board];
+
+      setPosVisible(i, j, newBoard);
+
+      const directions = [
+        [1, 1],
+        [1, -1],
+        [-1, 1],
+        [-1, -1],
+        [1, 0],
+        [0, 1],
+        [-1, 0],
+        [0, -1],
+      ];
+
+      while (nextClicks.length > 0) {
+        toClick = nextClicks;
+        nextClicks = [];
+        toClick.forEach((indexes) => {
+          directions.forEach((dir) => {
+            const newI = indexes[0] + dir[0];
+            const newJ = indexes[1] + dir[1];
+            if (
+              inBounds(4, newI, newJ) &&
+              board[newI][newJ].props.type !== BOMB
+            ) {
+              if (board[newI][newJ].props.type === NUMBER) {
+                setPosVisible(newI, newJ, newBoard);
+                setClickedBoxes((boxes) => [...boxes, [newI, newJ]]);
+              } else if (
+                board[newI][newJ].props.type === EMPTY &&
+                !board[newI][newJ].props.isVisible
+              ) {
+                setPosVisible(newI, newJ, newBoard);
+                setClickedBoxes((boxes) => [...boxes, [newI, newJ]]);
+                nextClicks.push([newI, newJ]);
+              }
+            }
+          });
+        });
       }
+      return newBoard;
     });
   };
+
+  useEffect(() => {
+    let success = false;
+    if (board && board.length > 0) {
+      success = true;
+
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+          if (
+            board[i][j].props.type !== BOMB &&
+            !clickedBoxes.some((box) => box[0] === i && box[1] === j)
+          ) {
+            success = false;
+            break;
+          }
+        }
+      }
+
+      if (success) setStatus(WIN);
+    }
+  }, [clickedBoxes]);
 
   useEffect(() => {
     const bombs = getRandomLocations(4, 2);
@@ -44,9 +95,15 @@ const Board = ({ setStatus }) => {
         if (bombs.some((bomb) => bomb[0] === i && bomb[1] === j)) {
           _board[i][j] = (
             <Cell
-              key={i + "-" + j}
+              key={convertIndexesToId(i, j)}
+              id={convertIndexesToId(i, j)}
               type={BOMB}
               data={{ setStatus: setStatus }}
+              setBoard={setBoard}
+              clickedBoxes={clickedBoxes}
+              setClickedBoxes={setClickedBoxes}
+              isVisible={false}
+              isFlag={false}
             />
           );
         } else {
@@ -54,13 +111,31 @@ const Board = ({ setStatus }) => {
           if (numOfBombsNear > 0) {
             _board[i][j] = (
               <Cell
-                key={i + "-" + j}
+                key={convertIndexesToId(i, j)}
+                id={convertIndexesToId(i, j)}
                 type={NUMBER}
                 data={{ number: numOfBombsNear }}
+                clickedBoxes={clickedBoxes}
+                setClickedBoxes={setClickedBoxes}
+                setBoard={setBoard}
+                isVisible={false}
+                isFlag={false}
               />
             );
           } else {
-            _board[i][j] = <Cell key={i + "-" + j} type={EMPTY} />;
+            _board[i][j] = (
+              <Cell
+                key={convertIndexesToId(i, j)}
+                id={convertIndexesToId(i, j)}
+                type={EMPTY}
+                clickedBoxes={clickedBoxes}
+                setClickedBoxes={setClickedBoxes}
+                setBoard={setBoard}
+                isVisible={false}
+                isFlag={false}
+                clickOnEmpty={clickOnEmpty}
+              />
+            );
           }
         }
       }
