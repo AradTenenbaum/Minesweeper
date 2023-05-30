@@ -6,7 +6,7 @@ import GameStatsBar from "../components/GameStatsBar";
 
 const Game = () => {
   const [status, setStatus] = useState(IN_PROGRESS);
-  const [bombsAmount, setBombsAmount] = useState(0);
+  const [flagsAmount, setFlagsAmount] = useState(0);
 
   return status === LOSS ? (
     <div className="game-container">You lost</div>
@@ -14,8 +14,8 @@ const Game = () => {
     <div className="game-container">You win</div>
   ) : (
     <div className="game-container">
-      <GameStatsBar bombsAmount={bombsAmount} />
-      <Board setStatus={setStatus} setBombsAmount={setBombsAmount} />
+      <GameStatsBar flagsAmount={flagsAmount} />
+      <Board setStatus={setStatus} setFlagsAmount={setFlagsAmount} />
     </div>
   );
 };

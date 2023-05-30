@@ -2,10 +2,13 @@ import React from "react";
 import "../../css/Cell.css";
 import { LOSS } from "../../utils/constants";
 import { convertIdToIndexes } from "../../utils/convert";
+import { setIsFlag } from "../../utils/board";
 
 const Bomb = ({ setStatus, setBoard, id, isFlag }) => {
   const onClick = () => {
-    setStatus(LOSS);
+    if (!isFlag) {
+      setStatus(LOSS);
+    }
   };
 
   const onContextMenu = (e) => {
@@ -13,20 +16,14 @@ const Bomb = ({ setStatus, setBoard, id, isFlag }) => {
     setBoard((board) => {
       const indexes = convertIdToIndexes(id);
       let newBoard = [...board];
-      newBoard[indexes[0]][indexes[1]] = {
-        ...newBoard[indexes[0]][indexes[1]],
-        props: {
-          ...newBoard[indexes[0]][indexes[1]].props,
-          isFlag: !newBoard[indexes[0]][indexes[1]].props.isFlag,
-        },
-      };
+      setIsFlag(indexes[0], indexes[1], newBoard, !isFlag);
       return newBoard;
     });
   };
 
   return (
     <div className="grid-item" onClick={onClick} onContextMenu={onContextMenu}>
-      {/* BOMB */}
+      {isFlag ? "🏳️" : " "}
     </div>
   );
 };

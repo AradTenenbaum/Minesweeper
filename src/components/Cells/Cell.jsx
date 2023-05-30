@@ -5,24 +5,12 @@ import Empty from "./Empty";
 import "../../css/Cell.css";
 import Bomb from "./Bomb";
 
-const Cell = ({
-  type,
-  data,
-  clickedBoxes,
-  setClickedBoxes,
-  id,
-  setBoard,
-  isVisible,
-  clickOnEmpty,
-  isFlag,
-}) => {
+const Cell = ({ type, data, id, setBoard, isVisible, isFlag }) => {
   let content;
   if (type === NUMBER) {
     content = (
       <Number
         number={data.number}
-        clickedBoxes={clickedBoxes}
-        setClickedBoxes={setClickedBoxes}
         id={id}
         isVisible={isVisible}
         setBoard={setBoard}
@@ -41,12 +29,9 @@ const Cell = ({
   } else if (type === EMPTY) {
     content = (
       <Empty
-        clickedBoxes={clickedBoxes}
-        setClickedBoxes={setClickedBoxes}
         id={id}
         isVisible={isVisible}
         setBoard={setBoard}
-        clickOnEmpty={clickOnEmpty}
         isFlag={isFlag}
       />
     );

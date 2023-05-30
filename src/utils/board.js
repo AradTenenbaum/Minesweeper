@@ -48,9 +48,9 @@ export const setPosVisible = (i, j, board) => {
   };
 };
 
-export const toggleFlag = (i, j, board) => {
+export const setIsFlag = (i, j, board, isFlag) => {
   board[i][j] = {
     ...board[i][j],
-    props: { ...board[i][j].props, isFlag: !board[i][j].props.isFlag },
+    props: { ...board[i][j].props, isFlag: isFlag },
   };
 };

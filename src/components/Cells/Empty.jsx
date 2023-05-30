@@ -1,38 +1,27 @@
 import React, { useState } from "react";
 import "../../css/Cell.css";
 import { convertIdToIndexes } from "../../utils/convert";
+import { setIsFlag } from "../../utils/board";
+import { clickOnEmpty } from "../../handlers/cell.handler";
 
-const Empty = ({
-  clickedBoxes,
-  setClickedBoxes,
-  id,
-  isVisible,
-  setBoard,
-  clickOnEmpty,
-  isFlag,
-}) => {
+const Empty = ({ id, isVisible, setBoard, isFlag }) => {
   const onClick = () => {
-    if (!isVisible) {
+    if (!isVisible && !isFlag) {
       const indexes = convertIdToIndexes(id);
-      clickOnEmpty(indexes[0], indexes[1]);
-      setClickedBoxes((boxes) => [...boxes, indexes]);
+      clickOnEmpty(indexes[0], indexes[1], setBoard);
     }
   };
 
   const onContextMenu = (e) => {
-    e.preventDefault();
-    const indexes = convertIdToIndexes(id);
-    setBoard((board) => {
-      let newBoard = [...board];
-      newBoard[indexes[0]][indexes[1]] = {
-        ...newBoard[indexes[0]][indexes[1]],
-        props: {
-          ...newBoard[indexes[0]][indexes[1]].props,
-          isFlag: !newBoard[indexes[0]][indexes[1]].props.isFlag,
-        },
-      };
-      return newBoard;
-    });
+    if (!isVisible) {
+      e.preventDefault();
+      const indexes = convertIdToIndexes(id);
+      setBoard((board) => {
+        let newBoard = [...board];
+        setIsFlag(indexes[0], indexes[1], newBoard, !isFlag);
+        return newBoard;
+      });
+    }
   };
 
   return (
@@ -41,7 +30,7 @@ const Empty = ({
       onClick={onClick}
       onContextMenu={onContextMenu}
     >
-      {isFlag ? "FLAG" : ""}
+      {isFlag ? "🏳️" : " "}
     </div>
   );
 };
